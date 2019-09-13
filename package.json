@@ -1,0 +1,22 @@
+{
+  "name": "lesbonsartisanstest",
+  "version": "1.0.0",
+  "description": "Project for Les Bons Artisans",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fabolododo/LesBonsArtisansTest.git"
+  },
+  "author": "Fabrice Latri",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fabolododo/LesBonsArtisansTest/issues"
+  },
+  "homepage": "https://github.com/fabolododo/LesBonsArtisansTest#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
