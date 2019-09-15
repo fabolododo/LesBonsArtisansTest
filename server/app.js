@@ -1,22 +1,16 @@
 //Définition des modules
 const express = require("express");
 // const mongoose = require("mongoose");
+
+const http = require("http");
+const socketIo = require("socket.io");
 const bodyParser = require("body-parser");
 const app = express();
 const cors = require('cors');
 const product = require("./routes/products.route");
-//Connexion à la base de donnée
-// let mongoDB =  process.env.MONGODB_URI || "mongodb://localhost:27042/rush-mern";
 
-// mongoose.connect(
-//   mongoDB, {
-//     useNewUrlParser: true,
-//     useCreateIndex: true,
-//     useFindAndModify: false
-// });
 
-// let db = mongoose.connection;
-// db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -26,31 +20,36 @@ var allowedOrigins = ['http://localhost:3000'];
 
 app.use(cors({
   origin: function(origin, callback) {
-
+    
     // allow requests with no origin
     // (like mobile apps or curl requests)
     if (!origin)
-      return callback(null, true);
-
+    return callback(null, true);
+    
     if (allowedOrigins.indexOf(origin) === -1) {
       var msg = 'The CORS policy for this site does not ' +
-                'allow access from the specified Origin.';
+      'allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }
-
+    
     return callback(null, true);
   }
 }));
 
 
 app.use("/products", product);
-//Définition du routeur
-// const router = express.Router();
-// app.use("/users", router);
-// require(__dirname + "/routes/user.route")(router);
 
-// app.use("/products", router);
-// require(__dirname + "/routes/products.route")(router);
+const server = http.createServer(app);
+
+const io = socketIo(server);
+
+io.on("connection", socket => {
+  console.log("New client connected");
+  
+  socket.on("disconnect", () => console.log("Client disconnected")
+  );
+})
+
 
 //Définition et mise en place du port d'écoute
 const port = 4242;

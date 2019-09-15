@@ -3,7 +3,8 @@ var _id = 4;
 
 function listProducts(req, res) {
     
-    res.send(ProductData)
+    res.send(ProductData);
+    socket.emit('listProduct');
 }
 
 function productDetails(req, res) {
@@ -14,6 +15,7 @@ function productDetails(req, res) {
             });
         } else {
             res.send(elem);
+            socket.emit('AddProduct');
         }
 }
 
