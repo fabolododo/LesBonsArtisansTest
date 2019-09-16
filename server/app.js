@@ -3,9 +3,11 @@ const express = require("express");
 // const mongoose = require("mongoose");
 
 const http = require("http");
-const socketIo = require("socket.io");
+// const socketIo = require("socket.io");
 const bodyParser = require("body-parser");
 const app = express();
+const server = http.Server(app);
+// const io = socketIo(server);
 const cors = require('cors');
 const product = require("./routes/products.route");
 
@@ -39,19 +41,16 @@ app.use(cors({
 
 app.use("/products", product);
 
-const server = http.createServer(app);
+// io.on("connection", socket => {
+//   console.log("New client connected");
+//   socket.emit("test", "contenu de l event")
 
-const io = socketIo(server);
-
-io.on("connection", socket => {
-  console.log("New client connected");
-  
-  socket.on("disconnect", () => console.log("Client disconnected")
-  );
-})
+//   socket.on("disconnect", () => console.log("Client disconnected")
+//   );
+// })
 
 
 //Définition et mise en place du port d'écoute
 const port = 4242;
-app.listen(port, () => console.log(`Listening on port ${port}`));
+server.listen(port, () => console.log(`Listening on port ${port}`));
 module.exports = app;

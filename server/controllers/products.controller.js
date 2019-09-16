@@ -1,10 +1,12 @@
 var ProductData = require('../Products');
 var _id = 4;
 
+// const socket = require("socket.io");
+
+
 function listProducts(req, res) {
-    
     res.send(ProductData);
-    socket.emit('listProduct');
+    // socket.emit('listProduct', {data: ProductData});
 }
 
 function productDetails(req, res) {
@@ -15,7 +17,7 @@ function productDetails(req, res) {
             });
         } else {
             res.send(elem);
-            socket.emit('AddProduct');
+            // socket.emit('AddProduct');
         }
 }
 

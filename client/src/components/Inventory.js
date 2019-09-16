@@ -1,120 +1,154 @@
 import React, { Component } from "react";
 import Product from "./Product";
-import socketIOClient from "socket.io-client";
+import axios from "axios";
+// import socketIOClient from "socket.io-client";
 import { Modal, Button } from "react-bootstrap";
+
+const HOST = "http://localhost:4242";
 
 
 class Inventory extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       products: [],
       productFormModal: false,
+      _id: "",
       name: "",
       snackMessage: "",
-      quantity: "",
-      unitType: "",
+      type: "",
+      price: 0,
+      rating: 0,
+      warranty_years: 0,
+      available: "",
       displaySnackBar: false,
-      response: false,
-      endpoint: "http://localhost:4242"
+      // response: false,
+      // endpoint: "http://localhost:4242"
     };
 
-    // this.handleNewProduct = this.handleNewProduct.bind(this);
-    // this.handleName = this.handleName.bind(this);
-    // this.handleQuantity = this.handleQuantity.bind(this);
-    // this.handleUnitType = this.handleUnitType.bind(this);
-    // this.handleSnackbar = this.handleSnackbar.bind(this);
+    this.handleNewProduct = this.handleNewProduct.bind(this);
+    this.handleName = this.handleName.bind(this);
+    this.handleType = this.handleType.bind(this);
+    this.handlePrice = this.handlePrice.bind(this);
+    this.handleRating = this.handleRating.bind(this);
+    this.handleWarrantyYears = this.handleWarrantyYears.bind(this);
+    this.handleAvailable = this.handleAvailable.bind(this);
+
+    this.handleSnackbar = this.handleSnackbar.bind(this);
   }
+
+  
 
   componentDidMount() {
-    const { endpoint, response } = this.state;
-    const socket = socketIOClient(endpoint);
-    socket.on("listProduct", data => this.setState({ response: data }));
-    console.log('response: ', response);
+    // const { endpoint, response } = this.state;
+    // const socket = socketIOClient(endpoint);
+
+    // socket.on("test", function(data) {
+    //   console.log(data)
+    // })
+    // socket.on("listProduct", data => this.setState({ response: data }));
+    // console.log('response: ', response);
     // console.log('data: ', data);
     
+  // }
+
+
+    var url = HOST + `/products/`;
+    axios.get(url).then(response => {
+      this.setState({ products: response.data });
+      console.log(response.data);
+    });
   }
 
+  handleNewProduct = e => {
+    e.preventDefault();
+    this.setState({ productFormModal: false });
+    var newProduct = {
+      name: this.state.name,
+      type: this.state.type,
+      price: this.state.price,
+      rating: this.state.rating,
+      warranty_years: this.state.warranty_years,
+      // available: this.state.available
 
-    // var url = HOST + `/products`;
-    // axios.get(url).then(response => {
-    //   this.setState({ products: response.data });
-    // });
-//   }
+    };
 
-//   handleNewProduct = e => {
-//     e.preventDefault();
-//     this.setState({ productFormModal: false });
-//     var newProduct = {
-//       name: this.state.name,
-//       quantity: this.state.quantity,
-//       unitType: this.state.unitType
-//     };
+    axios
+      .post(HOST + `/products`, newProduct)
+      .then(response => {
+        this.setState({ snackMessage: "Product Added Successfully!" });
+        this.handleSnackbar();
+        let products = this.state.products;
+        products.push(response.data.product);
+        this.setState({products});
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({ snackMessage: "Product failed to save!" });
+        this.handleSnackbar();
+      });
+  };
 
-//     axios
-//       .post(HOST + `/products/create`, newProduct)
-//       .then(response => {
-//         this.setState({ snackMessage: "Product Added Successfully!" });
-//         this.handleSnackbar();
-//         let products = this.state.products;
-//         products.push(response.data.product);
-//         this.setState({products});
-//       })
-//       .catch(err => {
-//         console.log(err);
-//         this.setState({ snackMessage: "Product failed to save!" });
-//         this.handleSnackbar();
-//       });
-//   };
+  handleEditProduct = editProduct => {
+    axios
+      .put(HOST + `/products/` + editProduct._id + `/update`, editProduct)
+      .then(response => {
+        this.setState({ snackMessage: "Product Updated Successfully!" });
+        this.handleSnackbar();
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({ snackMessage: "Product Update Failed!" });
+        this.handleSnackbar();
+      });
+  };
 
-//   handleEditProduct = editProduct => {
-//     axios
-//       .put(HOST + `/products/` + editProduct._id + `/update`, editProduct)
-//       .then(response => {
-//         this.setState({ snackMessage: "Product Updated Successfully!" });
-//         this.handleSnackbar();
-//       })
-//       .catch(err => {
-//         console.log(err);
-//         this.setState({ snackMessage: "Product Update Failed!" });
-//         this.handleSnackbar();
-//       });
-//   };
+  handleDeleteProduct = deleteProduct => {
+    axios
+      .delete(HOST + `/products/` + deleteProduct._id + `/delete`)
+      .then(response => {
+        this.setState({ snackMessage: "Product Deleted Successfully!" });
+        this.handleSnackbar();
+        let products = this.state.products;
+        products = products.filter(product => product._id !== response.data.product._id);
+        this.setState({products});
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({ snackMessage: "Product Delete Failed!" });
+        this.handleSnackbar();
+      });
+  };
 
-//   handleDeleteProduct = deleteProduct => {
-//     axios
-//       .delete(HOST + `/products/` + deleteProduct._id + `/delete`)
-//       .then(response => {
-//         this.setState({ snackMessage: "Product Deleted Successfully!" });
-//         this.handleSnackbar();
-//         let products = this.state.products;
-//         products = products.filter(product => product._id !== response.data.product._id);
-//         this.setState({products});
-//       })
-//       .catch(err => {
-//         console.log(err);
-//         this.setState({ snackMessage: "Product Delete Failed!" });
-//         this.handleSnackbar();
-//       });
-//   };
+  handleName = e => {
+    this.setState({ name: e.target.value });
+  };
 
-//   handleName = e => {
-//     this.setState({ name: e.target.value });
-//   };
+  handleType = e => {
+    this.setState({ type: e.target.value });
+  };
 
-//   handleQuantity = e => {
-//     this.setState({ quantity: e.target.value });
-//   };
+  handleRating= e => {
+    this.setState({ rating: e.target.value });
+  };
 
-//   handleUnitType = e => {
-//     this.setState({ unitType: e.target.value });
-//   };
+  handleWarrantyYears = e => {
+    this.setState({ warranty_years: e.target.value });
+  };
 
-//   handleSnackbar = () => {
-//     this.setState({ displaySnackBar: true });
-//     setTimeout(() => this.setState({ displaySnackBar: false }), 3000);
-//   };
+  handlePrice = e => {
+    this.setState({ price: e.target.value });
+  };
+
+  handleAvailable = e => {
+    this.setState({ available: e.target.value });
+  };
+
+  handleSnackbar = () => {
+    this.setState({ displaySnackBar: true });
+    setTimeout(() => this.setState({ displaySnackBar: false }), 3000);
+  };
 
   render() {
     var { products, snackMessage } = this.state;
@@ -151,7 +185,11 @@ class Inventory extends Component {
             <thead>
               <tr>
                 <th scope="col">Name</th>
-                <th scope="col">Quantity</th>
+                <th scope="col">type</th>
+                <th scope="col">price</th>
+                <th scope="col">rating</th>
+                <th scope="col">warranty Years</th>
+                <th scope="col">Available</th>
                 <th scope="col">Edit</th>
                 <th scope="col">Delete</th>
                 <th />
@@ -182,29 +220,29 @@ class Inventory extends Component {
                 </div>
               </div>
               <div className="form-group">
-                <label className="col-md-4 control-label" htmlFor="quantity">
-                  Quantity
+                <label className="col-md-4 control-label" htmlFor="type">
+                  Type
                 </label>
                 <div className="col-md-4">
                   <input
-                    id="quantity"
-                    name="quantity"
-                    placeholder="Quantity"
-                    onChange={this.handleQuantity}
+                    id="type"
+                    name="type"
+                    placeholder="Type"
+                    onChange={this.handleType}
                     className="form-control"
                   />
                 </div>
               </div>
               <div className="form-group">
-                <label className="col-md-4 control-label" htmlFor="unittype">
-                  Unit Type
+                <label className="col-md-4 control-label" htmlFor="price">
+                  Price
                 </label>
                 <div className="col-md-4">
                   <input
-                    id="unittype"
-                    name="unittype"
-                    placeholder="Unit type"
-                    onChange={this.handleUnitType}
+                    id="price"
+                    name="price"
+                    placeholder="Price"
+                    onChange={this.handlePrice}
                     className="form-control"
                   />
                 </div>
